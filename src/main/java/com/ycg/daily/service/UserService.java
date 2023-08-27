@@ -5,6 +5,8 @@ import com.ycg.daily.pojo.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ycg.daily.pojo.dto.LoginDto;
 import com.ycg.daily.pojo.dto.RegisterDto;
+import com.ycg.daily.pojo.vo.LoginVO;
+import com.ycg.daily.pojo.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,7 +37,7 @@ public interface UserService extends IService<User> {
      * @param loginDto
      * @return
      */
-    R<String> login(LoginDto loginDto, HttpServletRequest request);
+    R<LoginVO> login(LoginDto loginDto, HttpServletRequest request);
 
     /**
      * 用户退出
@@ -48,5 +50,5 @@ public interface UserService extends IService<User> {
      * @param id
      * @return
      */
-    User getUserById(String id);
+    UserVO getUserById(String id);
 }

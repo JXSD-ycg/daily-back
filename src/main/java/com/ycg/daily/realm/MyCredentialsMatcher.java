@@ -1,9 +1,11 @@
 package com.ycg.daily.realm;
 
+import cn.hutool.cache.CacheUtil;
 import cn.hutool.crypto.digest.MD5;
 import com.ycg.daily.common.UserContext;
 import com.ycg.daily.constants.ExceptionConstants;
 import com.ycg.daily.pojo.User;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 
@@ -25,6 +27,7 @@ public class MyCredentialsMatcher implements CredentialsMatcher {
 
         // 验证成功 将用户id存入 线程
         UserContext.setCurrentId(user.getId());
+
         return true;
     }
 }

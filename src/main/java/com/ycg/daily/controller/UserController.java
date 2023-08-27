@@ -7,6 +7,8 @@ import com.ycg.daily.common.R;
 import com.ycg.daily.pojo.User;
 import com.ycg.daily.pojo.dto.LoginDto;
 import com.ycg.daily.pojo.dto.RegisterDto;
+import com.ycg.daily.pojo.vo.LoginVO;
+import com.ycg.daily.pojo.vo.UserVO;
 import com.ycg.daily.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -40,7 +42,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public R<String> login(@RequestBody LoginDto loginDto, HttpServletRequest request) {
+    public R<LoginVO> login(@RequestBody LoginDto loginDto, HttpServletRequest request) {
         return userService.login(loginDto,request);
     }
 
@@ -57,11 +59,10 @@ public class UserController {
      * 但是这是个小项目, 不管了
      */
     @GetMapping("/{id}")
-    public R<User> getUserById(@PathVariable("id") String id) {
-        User user = userService.getUserById(id);
+    public R<UserVO> getUserById(@PathVariable("id") String id) {
+        UserVO user = userService.getUserById(id);
         return R.success(user);
     }
-
 
     /**
      * 用户完善信息接口
@@ -72,6 +73,7 @@ public class UserController {
     public R<String> updateUser(@RequestBody User user) {
         return userService.updateUser(user);
     }
+
 
     @RequiresRoles("admin")
     @DeleteMapping("/deleteUser/{id}")

@@ -102,19 +102,23 @@ class DailyApplicationTests {
         System.out.println(body);
     }
 
+//    public static void main(String[] args) {
+//        // 构建一个名字 url
+//        LocalDateTime now = LocalDateTime.now();
+//        int year = now.getYear();
+//        int month = now.getMonth().getValue();
+//
+//        String suffix = ".png";
+//
+//        // 文件名称
+//        String fileName = IdUtil.simpleUUID() + suffix;
+//
+//        String urlPrefix = "D:\\daily\\" +year + "\\" + month + "\\";
+//        FileUtil.touch(urlPrefix+fileName);
+//    }
+
     public static void main(String[] args) {
-        // 构建一个名字 url
-        LocalDateTime now = LocalDateTime.now();
-        int year = now.getYear();
-        int month = now.getMonth().getValue();
 
-        String suffix = ".png";
-
-        // 文件名称
-        String fileName = IdUtil.simpleUUID() + suffix;
-
-        String urlPrefix = "D:\\daily\\" +year + "\\" + month + "\\";
-        FileUtil.touch(urlPrefix+fileName);
     }
 
 

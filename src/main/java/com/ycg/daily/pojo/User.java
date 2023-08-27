@@ -72,7 +72,7 @@ public class User implements Serializable {
     private LocalDateTime createTime;
 
     /**
-     * 账号创建时间
+     * 账号创更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;

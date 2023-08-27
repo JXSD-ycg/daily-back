@@ -1,5 +1,7 @@
 package com.ycg.daily.common;
 
+import com.ycg.daily.pojo.vo.UserVO;
+
 /**
  * 请求上下文, 再一次请求可以获取当前用户的id
  */

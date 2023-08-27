@@ -13,14 +13,14 @@ import com.ycg.daily.pojo.DailyInfo;
 import com.ycg.daily.service.AsyncService;
 import com.ycg.daily.service.DailyInfoService;
 import javax.annotation.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class DailyInfoServiceImpl extends ServiceImpl<DailyInfoMapper, DailyInfo> implements DailyInfoService {
-    private static final Logger log = LoggerFactory.getLogger(DailyInfoServiceImpl.class);
+
     @Resource
     private AsyncService asyncService;
     @Resource
@@ -47,6 +47,7 @@ public class DailyInfoServiceImpl extends ServiceImpl<DailyInfoMapper, DailyInfo
         LambdaQueryWrapper<DailyInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DailyInfo::getIsPublic, 1);
         wrapper.orderByDesc(DailyInfo::getCreateTime, DailyInfo::getCreateTime);
+
         return this.page(page, wrapper);
     }
 
@@ -74,6 +75,6 @@ public class DailyInfoServiceImpl extends ServiceImpl<DailyInfoMapper, DailyInfo
             size = 7L;
         }
 
-        return new Page(current, size);
+        return new Page<>(current, size);
     }
 }

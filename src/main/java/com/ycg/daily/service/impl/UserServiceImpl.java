@@ -14,6 +14,8 @@ import com.ycg.daily.constants.VerificationConstants;
 import com.ycg.daily.pojo.User;
 import com.ycg.daily.pojo.dto.LoginDto;
 import com.ycg.daily.pojo.dto.RegisterDto;
+import com.ycg.daily.pojo.vo.LoginVO;
+import com.ycg.daily.pojo.vo.UserVO;
 import com.ycg.daily.service.UserService;
 import com.ycg.daily.mapper.UserMapper;
 import com.ycg.daily.util.MyJwtUtil;
@@ -117,12 +119,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     /**
      * 用户登录, 判断token
-     *
      * @param loginDto 登录参数
      * @return R
      */
     @Override
-    public R<String> login(LoginDto loginDto, HttpServletRequest request) {
+    public R<LoginVO> login(LoginDto loginDto, HttpServletRequest request) {
         // 参数校验
         if (ObjectUtil.isNull(loginDto)) {
             return R.error("登录信息为空");
@@ -171,13 +172,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return R.error("登录失败");
         }
 
-
         // 登录成功  删除验证码缓存
         codeCache.invalidate(VerificationConstants.PIC + loginDto.getEmail());
         // 正确则返回token
         String token = MyJwtUtil.createToken(UserContext.getCurrentId());
 
-        return R.success(token);
+        LoginVO loginVO = new LoginVO();
+        loginVO.setUserId(UserContext.getCurrentId());
+        loginVO.setToken(token);
+        return R.success(loginVO);
     }
 
     /**
@@ -194,13 +197,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     /**
      * 根据id查询用户
-     *
      * @param id
      * @return
      */
     @Override
-    public User getUserById(String id) {
-
+    public UserVO getUserById(String id) {
         // 参数校验
         if (StrUtil.isEmpty(id)) {
             log.error("用户id为空");
@@ -210,7 +211,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         wrapper.eq(User::getId, id);
         wrapper.eq(User::getStatus, 1);
 
-        return getOne(wrapper);
+        User user = getOne(wrapper);
+        UserVO userVO = new UserVO();
+        BeanUtil.copyProperties(user, userVO);
+
+        return userVO;
     }
 }
 
