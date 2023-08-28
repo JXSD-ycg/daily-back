@@ -1,13 +1,10 @@
 package com.ycg.daily;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ycg.daily.common.R;
-import com.ycg.daily.constants.RedisConstants;
+import com.ycg.daily.constants.CaffeineConstants;
 import com.ycg.daily.pojo.DailyInfo;
 import com.ycg.daily.service.DailyInfoService;
 import org.junit.jupiter.api.Test;
@@ -17,14 +14,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -80,7 +73,7 @@ class DailyApplicationTests {
         Page<DailyInfo> infoPage = dailyInfoService.page(page, wrapper);
         //2. 转换为字符串 存放到redis
         List<DailyInfo> records = infoPage.getRecords();
-        stringRedisTemplate.opsForValue().set(RedisConstants.DAILY_INFO_KEY, JSONUtil.toJsonStr(records));
+        stringRedisTemplate.opsForValue().set(CaffeineConstants.DAILY_INFO_KEY, JSONUtil.toJsonStr(records));
 
     }
 

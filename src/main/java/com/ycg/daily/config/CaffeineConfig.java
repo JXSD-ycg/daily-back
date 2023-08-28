@@ -1,7 +1,9 @@
 package com.ycg.daily.config;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.ycg.daily.pojo.DailyInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,6 +23,19 @@ public class CaffeineConfig {
                 .maximumSize(10000)
                 // 缓存有效期1小时
                 .expireAfterWrite(1, TimeUnit.HOURS)
+                .build();
+    }
+
+
+    /**
+     * 缓存 首页 日记内容
+     * @return
+     */
+    @Bean
+    public Cache<String, Page<DailyInfo>> dailyCache() {
+        return Caffeine.newBuilder()
+                .initialCapacity(100)
+                .maximumSize(10000)
                 .build();
     }
 

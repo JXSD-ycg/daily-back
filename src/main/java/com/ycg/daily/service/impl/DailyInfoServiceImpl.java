@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.ycg.daily.constants.CaffeineConstants;
 import com.ycg.daily.mapper.DailyInfoMapper;
 import com.ycg.daily.pojo.DailyInfo;
 import com.ycg.daily.service.AsyncService;
@@ -17,14 +19,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Function;
+
 @Slf4j
 @Service
 public class DailyInfoServiceImpl extends ServiceImpl<DailyInfoMapper, DailyInfo> implements DailyInfoService {
 
     @Resource
     private AsyncService asyncService;
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+
 
     public DailyInfoServiceImpl() {
     }
@@ -34,13 +37,26 @@ public class DailyInfoServiceImpl extends ServiceImpl<DailyInfoMapper, DailyInfo
         this.asyncService.dailyInfoAsync();
     }
 
-    public Page publicPage(Long current, Long size) {
+
+    @Resource
+    private Cache<String,Page<DailyInfo>> dailyCache;
+
+    /**
+     * 获取 首页文章内容
+     * @param current 当前页
+     * @param size    大小
+     * @return
+     */
+    public Page<DailyInfo> publicPage(Long current, Long size) {
         Page<DailyInfo> page = this.getInfoPage(current, size);
         if (page.getCurrent() == 1L && page.getSize() == 7L) {
-            String pageInfo = (String)this.stringRedisTemplate.opsForValue().get("daily_info");
-            if (!StrUtil.isEmpty(pageInfo)) {
+            Page<DailyInfo> dailyInfoPage = dailyCache.get(CaffeineConstants.DAILY_INFO_KEY, s -> {
+                log.error("没有从caffeine中获取到日记数据");
+                return null;
+            });
+            if (!ObjectUtil.isEmpty(dailyInfoPage)) {
                 log.info("读取缓存日记");
-                return JSONUtil.toBean(pageInfo, Page.class);
+                return dailyInfoPage;
             }
         }
 
