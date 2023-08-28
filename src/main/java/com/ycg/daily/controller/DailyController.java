@@ -32,6 +32,9 @@ public class DailyController {
         return R.success("添加成功");
     }
 
+//    @GetMapping
+//    public R<List<>>
+
     /**
      * 查询所有人的公开的日记
      * @param current 当前页
