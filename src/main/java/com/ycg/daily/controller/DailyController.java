@@ -22,7 +22,7 @@ public class DailyController {
     private DailyInfoService dailyInfoService;
 
     /**
-     * 增加一片日记 todo 还未进行token拦截, 直接放行了
+     * 增加一篇日记 todo 还未进行token拦截, 直接放行了
      * @param dailyInfo
      * @return
      */
@@ -31,6 +31,7 @@ public class DailyController {
         dailyInfoService.saveDaily(dailyInfo);
         return R.success("添加成功");
     }
+
 
 //    @GetMapping
 //    public R<List<>>
@@ -65,9 +66,8 @@ public class DailyController {
     }
 
 
-
     /**
-     * 查询用户自己的的所有日记
+     * 查询用户 自己的(登录用户) 的所有日记
      * @param id
      * @return
      */
@@ -82,9 +82,18 @@ public class DailyController {
         return R.success(dailyInfoService.getPageByUserId(current, size, id));
     }
 
+    /**
+     * 查询登录用户的一篇日记
+     * @param id
+     * @return
+     */
+    @GetMapping("/query/{id}")
+    public R<DailyInfo> query(@PathVariable("id") Integer id) {
+        return dailyInfoService.queryOne(id);
+    }
 
     /**
-     * 修改日记
+     * 修改一篇日记
      * @param dailyInfo
      * @return
      */

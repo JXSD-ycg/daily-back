@@ -10,6 +10,9 @@ spring:
     host: localhost
     port: 6379
     password: ycg
+  web:
+    resources:
+      static-locations: file:D:\daily\
 mybatis-plus:
   global-config:
     db-config:
@@ -18,5 +21,6 @@ mybatis-plus:
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
+  # 配置type-enums-package只对注解方式的枚举处理能提前加载缓存. 使用注解方式 VO也要使用枚举类
+  type-enums-package: com.ycg.daily.enums
 

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+
+import com.ycg.daily.enums.SexEnum;
 import lombok.Data;
 
 /**
@@ -53,7 +55,7 @@ public class User implements Serializable {
     /**
      * 用户性别 1:男, 0:女
      */
-    private Integer sex;
+    private SexEnum sex;
 
     /**
      * 用户状态  1:正常 , 0:禁用

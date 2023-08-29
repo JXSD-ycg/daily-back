@@ -3,6 +3,7 @@ package com.ycg.daily.service.impl;
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.LineCaptcha;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
@@ -10,6 +11,7 @@ import cn.hutool.core.util.URLUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.sun.org.apache.bcel.internal.util.ClassLoader;
 import com.ycg.daily.common.R;
 import com.ycg.daily.constants.VerificationConstants;
 import com.ycg.daily.pojo.DailyInfo;
@@ -20,6 +22,9 @@ import com.ycg.daily.service.CommonService;
 import com.ycg.daily.service.DailyInfoService;
 import com.ycg.daily.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.system.ApplicationHome;
+import org.springframework.data.annotation.Version;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -34,6 +39,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -132,6 +138,7 @@ public class CommonServiceImpl implements CommonService {
 
     @Resource
     private UserService userService;
+
     @Resource
     private DailyInfoService dailyInfoService;
 
@@ -166,7 +173,6 @@ public class CommonServiceImpl implements CommonService {
 
     /**
      * 接受要上传的图片 并保存 保存格式  d:/dailyImage/2023/08/文件名
-     *
      * @param files 文件流
      * @return
      */
@@ -183,7 +189,9 @@ public class CommonServiceImpl implements CommonService {
         // 文件名称
         String fileName = IdUtil.simpleUUID() + suffix;
 
-        String urlPrefix = "D:\\daily\\" +year + "\\" + month + "\\";
+        String urlPrefix ="D:/daily/";
+        String urlSuffix = year + "/" + month + "/";
+
         // 创建文件夹
 //        boolean exist = FileUtil.exist(urlPrefix);
 //        if (!exist) {
@@ -193,13 +201,14 @@ public class CommonServiceImpl implements CommonService {
 //        // 创建文件
 //        File file = FileUtil.touch(urlPrefix, files.getName());
 
-        File touch = FileUtil.touch(urlPrefix + fileName);
+
+        File touch = FileUtil.touch( urlPrefix + urlSuffix + fileName);
         try {
             FileUtil.writeBytes(files.getBytes(), touch);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return R.success(urlPrefix + fileName);
+        return R.success("http://127.0.0.1:8080/" + urlSuffix + fileName);
     }
 }

@@ -1,5 +1,7 @@
 package com.ycg.daily;
 
+import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

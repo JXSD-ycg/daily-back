@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.ycg.daily.enums.SexEnum;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -34,7 +35,7 @@ public class UserVO implements Serializable {
     /**
      * 用户性别 1:男, 0:女
      */
-    private Integer sex;
+    private SexEnum sex;
 
     /**
      * 账号创建时间

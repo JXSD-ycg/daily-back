@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.ycg.daily.common.R;
 import com.ycg.daily.constants.CaffeineConstants;
 import com.ycg.daily.mapper.DailyInfoMapper;
 import com.ycg.daily.pojo.DailyInfo;
@@ -71,6 +72,7 @@ public class DailyInfoServiceImpl extends ServiceImpl<DailyInfoMapper, DailyInfo
         Page<DailyInfo> page = this.getInfoPage(current, size);
         LambdaQueryWrapper<DailyInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DailyInfo::getUserId, id);
+        wrapper.orderByDesc(DailyInfo::getCreateTime);
         return this.page(page, wrapper);
     }
 
@@ -79,7 +81,24 @@ public class DailyInfoServiceImpl extends ServiceImpl<DailyInfoMapper, DailyInfo
         LambdaQueryWrapper<DailyInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DailyInfo::getUserId, id);
         wrapper.eq(DailyInfo::getIsPublic, 1);
+        wrapper.orderByDesc(DailyInfo::getCreateTime);
         return this.page(infoPage, wrapper);
+    }
+
+    /**
+     * 查询一篇日记
+     * @param id
+     * @return
+     */
+    @Override
+    public R<DailyInfo> queryOne(Integer id) {
+        if (ObjectUtil.isEmpty(id)) {
+            return R.error("日记id为空");
+        }
+        LambdaQueryWrapper<DailyInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DailyInfo::getId,id);
+        DailyInfo one = getOne(wrapper);
+        return R.success(one);
     }
 
     private Page<DailyInfo> getInfoPage(Long current, Long size) {
