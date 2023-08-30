@@ -92,12 +92,14 @@ public class CommonController {
 
     /**
      * 接受上传的图片并保存
-     * @param files 参数要和前面传过来名字杨
+     * @param files 参数要和前面传过来名字一样
+     * @param type  上传类型  1: 日记图片上传  0: 头像上传
      * @return
      */
-    @PostMapping("/upload")
-    public R<String> uploadImage(@RequestParam MultipartFile files) {
-        return commonService.uploadImage(files);
+    @PostMapping("/upload/{type}")
+    public R<String> uploadImage(@RequestParam MultipartFile files,
+                                 @PathVariable("type") Integer type) {
+        return commonService.uploadImage(files, type);
     }
 
 

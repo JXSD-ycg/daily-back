@@ -65,11 +65,11 @@ public class UserController {
     }
 
     /**
-     * 用户完善信息接口
+     * 修改用户信息接口
      * @param user  前端传过来的user, 包括id和要修改的数据
      * @return
      */
-    @PostMapping("/updateUser")
+    @PutMapping("/updateUser")
     public R<String> updateUser(@RequestBody User user) {
         return userService.updateUser(user);
     }

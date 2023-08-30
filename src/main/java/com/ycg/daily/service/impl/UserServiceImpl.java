@@ -111,9 +111,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     @Override
     public R<String> updateUser(User user) {
-        User newUser = new User();
-        BeanUtil.copyProperties(user, newUser);
-        updateById(newUser);
+        if (ObjectUtil.isEmpty(user)){
+            return R.error("user对象不为空");
+        }
+        updateById(user);
         return R.success("修改用户信息成功");
     }
 

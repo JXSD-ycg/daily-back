@@ -9,6 +9,7 @@ import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
 import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
@@ -34,7 +35,6 @@ public class ShiroConfig {
     public DefaultWebSecurityManager defaultWebSecurityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         MyCredentialsMatcher matcher = new MyCredentialsMatcher();
-
 
         myRealm.setCredentialsMatcher(matcher); // 自定义加密
         myRealm.setAuthenticationCachingEnabled(true); // 认证缓存

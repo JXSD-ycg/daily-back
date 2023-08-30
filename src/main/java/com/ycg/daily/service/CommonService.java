@@ -37,7 +37,8 @@ public interface CommonService {
     /**
      * 解说上传的图片 并保存
      * @param image 文件流
+     * @param type  上传类型  1: 日记图片上传  0: 头像上传
      * @return
      */
-    R<String> uploadImage(MultipartFile image) ;
+    R<String> uploadImage(MultipartFile image, Integer type);
 }
