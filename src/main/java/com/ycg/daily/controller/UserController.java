@@ -70,7 +70,7 @@ public class UserController {
      * @return
      */
     @PutMapping("/updateUser")
-    public R<String> updateUser(@RequestBody User user) {
+    public R<UserVO> updateUser(@RequestBody User user) {
         return userService.updateUser(user);
     }
 

@@ -105,17 +105,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     /**
      * 修改用户
-     *
+     * 返回
      * @param user
      * @return
      */
     @Override
-    public R<String> updateUser(User user) {
+    public R<UserVO> updateUser(User user) {
         if (ObjectUtil.isEmpty(user)){
             return R.error("user对象不为空");
         }
         updateById(user);
-        return R.success("修改用户信息成功");
+        UserVO userVO = new UserVO();
+        BeanUtil.copyProperties(user, userVO);
+        return R.success(userVO);
     }
 
     /**
@@ -154,7 +156,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return null;
         });
 
-        if (StrUtil.isBlank(picCode)) {
+        if (StrUtil.isBlank(picCode) || !Objects.equals(picCode, loginDto.getPicCode())) {
             log.error("验证码错误");
             return R.error("验证码错误");
         }

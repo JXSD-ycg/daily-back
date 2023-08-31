@@ -30,7 +30,7 @@ public interface UserService extends IService<User> {
      * @param user
      * @return
      */
-    R<String> updateUser(User user);
+    R<UserVO> updateUser(User user);
 
     /**
      * 用户登录, 判断token
