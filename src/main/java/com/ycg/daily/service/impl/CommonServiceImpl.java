@@ -3,30 +3,26 @@ package com.ycg.daily.service.impl;
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.LineCaptcha;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.benmanes.caffeine.cache.Cache;
-import com.sun.org.apache.bcel.internal.util.ClassLoader;
 import com.ycg.daily.common.R;
 import com.ycg.daily.common.UserContext;
-import com.ycg.daily.constants.UploadType;
+import com.ycg.daily.constants.ImageType;
 import com.ycg.daily.constants.VerificationConstants;
 import com.ycg.daily.pojo.DailyInfo;
 import com.ycg.daily.pojo.Picture;
 import com.ycg.daily.pojo.User;
 import com.ycg.daily.pojo.vo.CodeMessageVo;
+import com.ycg.daily.pojo.vo.ImageVO;
 import com.ycg.daily.pojo.vo.Sentence;
 import com.ycg.daily.service.CommonService;
 import com.ycg.daily.service.DailyInfoService;
 import com.ycg.daily.service.PictureService;
 import com.ycg.daily.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.system.ApplicationHome;
-import org.springframework.data.annotation.Version;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -39,13 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.*;
 
 @Slf4j
@@ -188,47 +179,27 @@ public class CommonServiceImpl implements CommonService {
      */
     @Transactional
     @Override
-    public R<String> uploadImage(MultipartFile files, Integer type) {
-        // 构建一个名字 url
-        LocalDateTime now = LocalDateTime.now();
-        int year = now.getYear();
-        int month = now.getMonth().getValue();
-        String suffix = "." + FileUtil.getSuffix(files.getOriginalFilename());
-
-        // 文件名称
-        String fileName = IdUtil.simpleUUID() + suffix;
-
-        String urlPrefix = "D:/daily/";
-        String urlSuffix = year + "/" + month + "/";
-        String imageMd5 = null;
-        try {
-            imageMd5 = MD5.create().digestHex(files.getBytes());
-        } catch (IOException e) {
-            R.error("文件流异常");
-        }
-        // 图片重复问题
-        // 判断是否是头像上传 头像对一个用户来说是唯一的, 要删除之前的头像
-        if ((Objects.equals(type, UploadType.AVATAR))) {
-            // 查询数据库 获取唯一 MD5
-            LambdaQueryWrapper<Picture> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Picture::getUserId, UserContext.getCurrentId())
-                    .eq(Picture::getHash, imageMd5)
-                    .eq(Picture::getIsAvatar, type);
-            Picture picture = pictureService.getOne(wrapper);
-            // 如果不为空, 说明已经有头像了, 直接返回picture里面的url即可
-            if (ObjectUtil.isNotNull(picture)) {
-                return R.success(picture.getUrl());
-            }
+    public R<ImageVO> uploadImage(MultipartFile files, Integer type) {
+        // 检查图片类型
+        if (ObjectUtil.isEmpty(type) && type != 1 && type != 0) {
+            return R.error("图片类型错误");
         }
 
+        // 后去文件路径  年/月/md5.png
+        String filePath = getFilePath(files);
+        String imageMd5 = getImageMd5(files);
 
-        File touch = FileUtil.touch(urlPrefix + urlSuffix + fileName);
-        try {
-            FileUtil.writeBytes(files.getBytes(), touch);
-        } catch (IOException e) {
-            e.printStackTrace();
+        // 获取唯一的图片或头像
+        Picture picture = pictureService.getUniquePicture(imageMd5, type);
+        // 如果不为空, 说明已经有头像/图片了, 直接返回picture里面的url即可 这个是解决重复头像问题
+        if (ObjectUtil.isNotNull(picture)) {
+            ImageVO imageVO = new ImageVO();
+            imageVO.setImageUrl(picture.getUrl());
+            imageVO.setId(picture.getId());
+            return R.success(imageVO);
         }
-        String url = "http://127.0.0.1:8080/" + urlSuffix + fileName;
+
+        String url = createImageUrl(files, filePath);
         // 成功上传 保存记录到 数据库
         Picture newPicture = new Picture();
         newPicture.setHash(imageMd5);
@@ -237,6 +208,101 @@ public class CommonServiceImpl implements CommonService {
         newPicture.setUrl(url);
         pictureService.save(newPicture);
 
-        return R.success(url);
+        // 如果是头像的上传, 新增头像之后, 要把之前的头像删除了
+        if (type.equals(ImageType.AVATAR)) {
+            // 删除之前的头像 ,包括数据库 和 本地文件
+            delBeforeAvatar(newPicture);
+        }
+
+        ImageVO imageVO = new ImageVO();
+        imageVO.setId(newPicture.getId());
+        imageVO.setImageUrl(url);
+        return R.success(imageVO);
+    }
+
+    /**
+     * 删除用户 之前的头像
+     *
+     * @param newPicture 排除的 图片
+     */
+    private void delBeforeAvatar(Picture newPicture) {
+        // 删除用户的之前头像
+        LambdaQueryWrapper<Picture> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Picture::getUserId, UserContext.getCurrentId())
+                .ne(Picture::getId, newPicture.getId())
+                .eq(Picture::getIsAvatar, ImageType.AVATAR);
+        // 删除 头像文件地址
+        Picture one = pictureService.getOne(wrapper);
+        if (ObjectUtil.isNotNull(one)) { // 第一次换头像可能为null
+            String path = one.getUrl().replace("http://127.0.0.1:8080/", "D:/daily/");
+            FileUtil.del(path);
+            // 删除数据库数据
+            pictureService.remove(wrapper);
+        }
+    }
+
+    /**
+     * 删除图片
+     *
+     * @param imageUrl
+     * @param type
+     * @return
+     */
+    @Override
+    public R<String> deleteImage(Long id, String imageUrl, Integer type) {
+        // 参数校验
+        if (StrUtil.isEmpty(imageUrl) || !Objects.equals(type, ImageType.AVATAR) || !type.equals(ImageType.DAILY)) {
+            R.error("参数错误");
+        }
+        return pictureService.removePicture(id, imageUrl, type);
+    }
+
+    /**
+     * 真正的创建图片url
+     *
+     * @param files
+     * @param filePath
+     * @return
+     */
+    private String createImageUrl(MultipartFile files, String filePath) {
+        File touch = FileUtil.touch("D:/daily/" + filePath);
+        try {
+            FileUtil.writeBytes(files.getBytes(), touch);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "http://127.0.0.1:8080/" + filePath;
+    }
+
+    /**
+     * 获取 图片流的 md5
+     *
+     * @param files
+     * @return
+     */
+    private String getImageMd5(MultipartFile files) {
+        String imageMd5 = null;
+        try {
+            imageMd5 = MD5.create().digestHex(files.getBytes());
+        } catch (IOException e) {
+            R.error("文件流异常");
+        }
+        return imageMd5;
+    }
+
+    /**
+     * 获取文件路径 年/月/uuid.png  2023/8/uuid.png
+     *
+     * @param files
+     * @return
+     */
+    private String getFilePath(MultipartFile files) {
+        // 构建一个名字 url
+        LocalDateTime now = LocalDateTime.now();
+        int year = now.getYear();
+        int month = now.getMonth().getValue();
+        String suffix = "." + FileUtil.getSuffix(files.getOriginalFilename());
+        // 文件名称
+        return year + "/" + month + "/" + IdUtil.simpleUUID() + suffix;
     }
 }

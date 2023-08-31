@@ -1,5 +1,6 @@
 package com.ycg.daily.service;
 
+import com.ycg.daily.common.R;
 import com.ycg.daily.pojo.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -9,5 +10,23 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2023-08-30 11:17:52
 */
 public interface PictureService extends IService<Picture> {
+
+    /**
+     * 获取唯一图片
+     * @param imageMd5  图片处理后的md5值
+     * @param type      图片类型 0: 日记图片 1:头像
+     * @return
+     */
+    Picture getUniquePicture(String imageMd5, Integer type);
+
+
+    /**
+     * 删除图片
+     * @param imageUrl
+     * @param type
+     * @return
+     */
+    R<String> removePicture(Long id, String imageUrl, Integer type);
+
 
 }

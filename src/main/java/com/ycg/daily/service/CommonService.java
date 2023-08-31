@@ -2,6 +2,7 @@ package com.ycg.daily.service;
 
 import com.ycg.daily.common.R;
 import com.ycg.daily.pojo.vo.CodeMessageVo;
+import com.ycg.daily.pojo.vo.ImageVO;
 import com.ycg.daily.pojo.vo.Sentence;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,10 +36,20 @@ public interface CommonService {
     R<List<Integer>> getTotal();
 
     /**
-     * 解说上传的图片 并保存
+     * 接收上传的图片 并保存
      * @param image 文件流
      * @param type  上传类型  1: 日记图片上传  0: 头像上传
      * @return
      */
-    R<String> uploadImage(MultipartFile image, Integer type);
+    R<ImageVO> uploadImage(MultipartFile image, Integer type);
+
+
+    /**
+     * 删除图片
+     * @param id   图片数据库id
+     * @param imageUrl
+     * @param type
+     * @return
+     */
+    R<String> deleteImage(Long id, String imageUrl, Integer type);
 }

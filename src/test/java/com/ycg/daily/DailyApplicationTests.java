@@ -41,10 +41,10 @@ class DailyApplicationTests {
 
         for (int i = 0; i < 100; i++) {
             DailyInfo dailyInfo = new DailyInfo();
-            dailyInfo.setUsername("用户名称"+i);
+            dailyInfo.setUsername("用户名称" + i);
             dailyInfo.setDailyTitle("日记标题" + i);
-            dailyInfo.setContent("测试日记文本测试日" +i +
-                    "测试日记文本测试日记文本测试日记文本测试日记文本" +i +
+            dailyInfo.setContent("测试日记文本测试日" + i +
+                    "测试日记文本测试日记文本测试日记文本测试日记文本" + i +
                     "测试日记文本测试日记文本测试日记文本测试日记文本" + i +
                     "记文本测试日记文本测试日记文本测试日记文本" + i);
             dailyInfo.setLikes(new Random().nextInt(1000));
@@ -87,8 +87,8 @@ class DailyApplicationTests {
     @Test
     void sentence() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("app_id","tqiqmcqgptlsjkqy");
-        headers.set("app_secret","2zoz5QfIblYnHMQiymtppMjCqyQzXahk");
+        headers.set("app_id", "tqiqmcqgptlsjkqy");
+        headers.set("app_secret", "2zoz5QfIblYnHMQiymtppMjCqyQzXahk");
 
         HttpEntity<String> http = new HttpEntity<>(headers);
         String url = " https://www.mxnzp.com/api/daily_word/recommend?count=1";
@@ -114,7 +114,8 @@ class DailyApplicationTests {
 //    }
 
     public static void main(String[] args) {
-
+        String path = "http://127.0.0.1:8080/2023/8/131b7633973c4e7d88f44d9088ffebaa.png";
+        System.out.println(path.replace("http://127.0.0.1:8080/", "D:/daily/"));
     }
 
 

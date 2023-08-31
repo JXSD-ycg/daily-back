@@ -13,12 +13,15 @@ import cn.hutool.json.JSONUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.ycg.daily.common.R;
 import com.ycg.daily.constants.VerificationConstants;
+import com.ycg.daily.pojo.dto.ImageDto;
 import com.ycg.daily.pojo.dto.RegisterDto;
 import com.ycg.daily.pojo.vo.CodeMessageVo;
+import com.ycg.daily.pojo.vo.ImageVO;
 import com.ycg.daily.pojo.vo.Sentence;
 import com.ycg.daily.service.CommonService;
 import com.ycg.daily.util.MailUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -97,9 +100,20 @@ public class CommonController {
      * @return
      */
     @PostMapping("/upload/{type}")
-    public R<String> uploadImage(@RequestParam MultipartFile files,
-                                 @PathVariable("type") Integer type) {
+    public R<ImageVO> uploadImage(@RequestParam MultipartFile files,
+                                  @PathVariable("type") Integer type) {
         return commonService.uploadImage(files, type);
+    }
+
+    /**
+     * 删除图片功能
+     * @param
+     * @return
+     */
+    @DeleteMapping("/delete")
+    public R<String> deleteImage(@RequestBody ImageDto dto) {
+
+        return commonService.deleteImage(dto.getId(), dto.getUrl(), dto.getType());
     }
 
 

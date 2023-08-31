@@ -1,6 +1,6 @@
 package com.ycg.daily.constants;
 
-public class UploadType {
+public class ImageType {
     /**
      * 头像上传
      */
