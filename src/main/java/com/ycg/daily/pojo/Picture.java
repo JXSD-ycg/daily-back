@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Objects;
+
 import lombok.Data;
 
 /**
@@ -31,6 +33,11 @@ public class Picture implements Serializable {
     private String hash;
 
     /**
+     * 图片名称
+     */
+    private String name;
+
+    /**
      * 图片url
      */
     private String url;
@@ -50,52 +57,28 @@ public class Picture implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public boolean equals(Object that) {
-        if (this == that) {
-            return true;
-        }
-        if (that == null) {
-            return false;
-        }
-        if (getClass() != that.getClass()) {
-            return false;
-        }
-        Picture other = (Picture) that;
-        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-            && (this.getHash() == null ? other.getHash() == null : this.getHash().equals(other.getHash()))
-            && (this.getUrl() == null ? other.getUrl() == null : this.getUrl().equals(other.getUrl()))
-            && (this.getIsAvatar() == null ? other.getIsAvatar() == null : this.getIsAvatar().equals(other.getIsAvatar()))
-            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Picture picture = (Picture) o;
+        return Objects.equals(id, picture.id) && Objects.equals(userId, picture.userId) && Objects.equals(hash, picture.hash) && Objects.equals(name, picture.name) && Objects.equals(url, picture.url) && Objects.equals(isAvatar, picture.isAvatar) && Objects.equals(createTime, picture.createTime);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
-        result = prime * result + ((getHash() == null) ? 0 : getHash().hashCode());
-        result = prime * result + ((getUrl() == null) ? 0 : getUrl().hashCode());
-        result = prime * result + ((getIsAvatar() == null) ? 0 : getIsAvatar().hashCode());
-        result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
-        return result;
+        return Objects.hash(id, userId, hash, name, url, isAvatar, createTime);
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", userid=").append(userId);
-        sb.append(", hash=").append(hash);
-        sb.append(", url=").append(url);
-        sb.append(", isAvatar=").append(isAvatar);
-        sb.append(", createTime=").append(createTime);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
+        return "Picture{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", hash='" + hash + '\'' +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", isAvatar=" + isAvatar +
+                ", createTime=" + createTime +
+                '}';
     }
 }

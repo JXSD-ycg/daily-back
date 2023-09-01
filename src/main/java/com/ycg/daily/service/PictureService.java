@@ -1,8 +1,11 @@
 package com.ycg.daily.service;
 
 import com.ycg.daily.common.R;
+import com.ycg.daily.pojo.DailyInfo;
 import com.ycg.daily.pojo.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
 * @author lenovo
@@ -27,6 +30,14 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     R<String> removePicture(Long id, String imageUrl, Integer type);
+
+    /**
+     * 调整图片返回格式 转成数组字符串  数组里面是一个ImageDto
+     * @param list 日记列表地
+
+     * @return
+     */
+    void changeImageForm(List<DailyInfo> list);
 
 
 }

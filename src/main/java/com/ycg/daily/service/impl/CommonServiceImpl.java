@@ -206,12 +206,13 @@ public class CommonServiceImpl implements CommonService {
         newPicture.setIsAvatar(type);
         newPicture.setUserId(UserContext.getCurrentId());
         newPicture.setUrl(url);
+        newPicture.setName(files.getName());
         pictureService.save(newPicture);
 
         // 如果是头像的上传, 新增头像之后, 要把之前的头像删除了
         if (type.equals(ImageType.AVATAR)) {
             // 删除之前的头像 ,包括数据库 和 本地文件
-            delBeforeAvatar(newPicture);
+            delOldAvatar(newPicture);
         }
 
         ImageVO imageVO = new ImageVO();
@@ -225,7 +226,7 @@ public class CommonServiceImpl implements CommonService {
      *
      * @param newPicture 排除的 图片
      */
-    private void delBeforeAvatar(Picture newPicture) {
+    private void delOldAvatar(Picture newPicture) {
         // 删除用户的之前头像
         LambdaQueryWrapper<Picture> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Picture::getUserId, UserContext.getCurrentId())

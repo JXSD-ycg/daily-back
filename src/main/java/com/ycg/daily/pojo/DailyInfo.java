@@ -66,7 +66,7 @@ public class DailyInfo implements Serializable {
     private Integer isPublic;
 
     /**
-     * 文章图片url
+     * 文章图片 id
      */
     private String image;
 
@@ -95,6 +95,7 @@ public class DailyInfo implements Serializable {
     /**
      * 逻辑删除
      */
+    @TableLogic
     private Integer isDelete;
 
     @TableField(exist = false)

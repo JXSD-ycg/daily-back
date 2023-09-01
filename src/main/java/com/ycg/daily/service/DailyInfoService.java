@@ -23,7 +23,7 @@ public interface DailyInfoService extends IService<DailyInfo> {
      * @param size    大小
      * @return page
      */
-    Page<DailyInfo> publicPage(Long current,
+    R<Page<DailyInfo>> publicPage(Long current,
                                Long size);
 
     /**
@@ -31,7 +31,7 @@ public interface DailyInfoService extends IService<DailyInfo> {
      * @param id
      * @return
      */
-    Page<DailyInfo> getPageByUserId(Long current, Long size, String id);
+    R<Page<DailyInfo>> getPageByUserId(Long current, Long size, String id);
 
     /**
      * 查询单个用户所有的公开日记
@@ -39,7 +39,7 @@ public interface DailyInfoService extends IService<DailyInfo> {
      * @param size 大小
      * @return page
      */
-    Page<DailyInfo> publicPageByUserId(Long current, Long size, String id);
+    R<Page<DailyInfo>>publicPageByUserId(Long current, Long size, String id);
 
     /**
      * 查询一篇日记

@@ -20,4 +20,8 @@ public class ImageDto implements Serializable {
      */
     private Integer type;
 
+    /**
+     * 图片名称
+     */
+    private String name;
 }

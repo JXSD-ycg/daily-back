@@ -45,7 +45,7 @@ public class DailyController {
     @GetMapping("/public/{current}/{size}")
     public R<Page<DailyInfo>> publicPage(@PathVariable("current") Long current,
                                    @PathVariable("size") Long size) {
-        return R.success(dailyInfoService.publicPage(current, size));
+        return dailyInfoService.publicPage(current, size);
     }
 
     /**
@@ -62,7 +62,7 @@ public class DailyController {
             log.error("用户id为空");
             return R.error("用户id为空");
         }
-        return R.success(dailyInfoService.publicPageByUserId(current, size, id));
+        return dailyInfoService.publicPageByUserId(current, size, id);
     }
 
 
@@ -79,7 +79,7 @@ public class DailyController {
             log.error("用户id为空");
             return R.error("用户id为空");
         }
-        return R.success(dailyInfoService.getPageByUserId(current, size, id));
+        return dailyInfoService.getPageByUserId(current, size, id);
     }
 
     /**
