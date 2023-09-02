@@ -1,42 +1,18 @@
 package com.ycg.daily.controller;
 
 
-import cn.hutool.captcha.CaptchaUtil;
-import cn.hutool.captcha.LineCaptcha;
-import cn.hutool.captcha.generator.RandomGenerator;
-import cn.hutool.core.lang.Console;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.server.HttpServerResponse;
-import cn.hutool.json.JSONUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.ycg.daily.common.R;
-import com.ycg.daily.constants.VerificationConstants;
 import com.ycg.daily.pojo.dto.ImageDto;
-import com.ycg.daily.pojo.dto.RegisterDto;
-import com.ycg.daily.pojo.vo.CodeMessageVo;
-import com.ycg.daily.pojo.vo.ImageVO;
-import com.ycg.daily.pojo.vo.Sentence;
+import com.ycg.daily.pojo.vo.*;
 import com.ycg.daily.service.CommonService;
 import com.ycg.daily.util.MailUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Delete;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,9 +20,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/common")
 public class CommonController {
-
-    @Resource
-    private Cache<String, String> codeCache;
 
     @Resource
     private MailUtils mailUtils;
@@ -66,7 +39,6 @@ public class CommonController {
 
     /**
      * 用户登录实现图形验证码功能
-     *
      * @return
      */
     @GetMapping("/generateCode")
@@ -78,16 +50,35 @@ public class CommonController {
      * 每日一句
      * @return
      */
-    @RequestMapping("/sentence")
-    public R<List<Sentence>> sentence() {
+    @GetMapping("/sentence")
+    public R<List<SentenceVO>> sentence() {
         return commonService.sentence();
     }
+
+    /**
+     * 获取财经新闻
+     * @return
+     */
+    @GetMapping("/finance")
+    public R<List<NewVO>> finance() {
+        return commonService.finance();
+    }
+
+//    /**
+//     * 获取日期信息, 节假日, 万年历, 节气等
+//     * @return
+//     */
+//    @GetMapping("/holiday")
+//    public R<HolidayVO> holiday() {
+//        return commonService.holiday();
+//    }
+
 
     /**
      * 获取本站总体数据  用户数 日记数量等
      * @return
      */
-    @RequestMapping("/total")
+    @GetMapping("/total")
     public R<List<Integer>> getTotal() {
         return commonService.getTotal();
     }

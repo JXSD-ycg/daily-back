@@ -10,18 +10,18 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.ycg.daily.common.R;
 import com.ycg.daily.common.UserContext;
+import com.ycg.daily.constants.CaffeineConstants;
 import com.ycg.daily.constants.ImageType;
-import com.ycg.daily.constants.VerificationConstants;
 import com.ycg.daily.pojo.DailyInfo;
 import com.ycg.daily.pojo.Picture;
 import com.ycg.daily.pojo.User;
-import com.ycg.daily.pojo.vo.CodeMessageVo;
-import com.ycg.daily.pojo.vo.ImageVO;
-import com.ycg.daily.pojo.vo.Sentence;
+import com.ycg.daily.pojo.vo.*;
 import com.ycg.daily.service.CommonService;
 import com.ycg.daily.service.DailyInfoService;
 import com.ycg.daily.service.PictureService;
 import com.ycg.daily.service.UserService;
+import com.ycg.daily.util.HttpEntityUtils;
+import com.ycg.daily.util.NewUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -36,8 +36,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+
 
 @Slf4j
 @Service
@@ -63,7 +65,7 @@ public class CommonServiceImpl implements CommonService {
         log.info("邮箱验证码:" + code);
 
         // 存入缓存中
-        codeCache.put(VerificationConstants.MAIL + email, String.valueOf(code));
+        codeCache.put(CaffeineConstants.MAIL + email, String.valueOf(code));
 
         return R.success("发送邮箱成功");
     }
@@ -93,7 +95,7 @@ public class CommonServiceImpl implements CommonService {
 
         long id = System.currentTimeMillis();
         // 加入缓存中
-        codeCache.put(VerificationConstants.PIC + id, code);
+        codeCache.put(CaffeineConstants.PIC + id, code);
         response.setContentType("application/json; charset=UTF-8");
         // 返回base64编码数据
         // String imageBase64 = lineCaptcha.getImageBase64Data();
@@ -116,21 +118,19 @@ public class CommonServiceImpl implements CommonService {
      * @return
      */
     @Override
-    public R<List<Sentence>> sentence() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("app_id", "tqiqmcqgptlsjkqy");
-        headers.set("app_secret", "2zoz5QfIblYnHMQiymtppMjCqyQzXahk");
-        HttpEntity<String> http = new HttpEntity<>(headers);
-        String url = "https://www.mxnzp.com/api/daily_word/recommend?count=10";
+    public R<List<SentenceVO>> sentence() {
+        HttpEntity<String> http = HttpEntityUtils.getHttpEntity();
+        String url = HttpEntityUtils.getSentenceUrl();
         ResponseEntity<R> entity = restTemplate.exchange(url, HttpMethod.GET, http, R.class, "");
         R body = entity.getBody();
         String jsonStr = JSONUtil.toJsonStr(body.getData());
         // 使用toString 会将  : 变成 =
         // List<Sentence> sentenceList = JSONUtil.toList(body.getData().toString(), Sentence.class);
-        List<Sentence> sentenceList = JSONUtil.toList(jsonStr, Sentence.class);
+        List<SentenceVO> sentenceVOList = JSONUtil.toList(jsonStr, SentenceVO.class);
 
-        return R.success(sentenceList);
+        return R.success(sentenceVOList);
     }
+
 
     @Resource
     private UserService userService;
@@ -258,6 +258,28 @@ public class CommonServiceImpl implements CommonService {
         return pictureService.removePicture(id, imageUrl, type);
     }
 
+    @Resource
+    private Cache<String, List<NewVO>> newsCache;
+    /**
+     * 获取财经新闻
+     * @return
+     */
+    @Override
+    public R<List<NewVO>> finance() {
+        // 查询缓存
+        List<NewVO> news = newsCache.get(CaffeineConstants.NEWS, (key) -> {
+            log.warn("新闻缓存为命中");
+            return null;
+        });
+        if (ObjectUtil.isNull(news)) {
+            // 没有则爬取数据
+            news = NewUtils.getNews();
+            newsCache.put(CaffeineConstants.NEWS,news);
+        }
+        return R.success(news);
+    }
+
+
     /**
      * 真正的创建图片url
      *
@@ -306,4 +328,36 @@ public class CommonServiceImpl implements CommonService {
         // 文件名称
         return year + "/" + month + "/" + IdUtil.simpleUUID() + suffix;
     }
+
+//    @Resource
+//    private Cache<String, HolidayVO> holidayCache;
+
+//    /**
+//     * 获取日期信息, 节假日, 万年历, 节气等
+//     * @return
+//     */
+//    public R<HolidayVO> holiday() {
+//        // 先查询缓存
+//        HolidayVO holidayVO;
+//        holidayVO = holidayCache.get(CaffeineConstants.HOLIDAY_KEY, key -> {
+//            log.warn("没有缓存日历信息");
+//            return null;
+//        });
+//        if (ObjectUtil.isNull(holidayVO)) {
+//            // 定时更新缓存汇总的日历信息
+//            HttpEntity<String> http = HttpEntityUtils.getHttpEntity();
+//            String url = HttpEntityUtils.getHolidayUrl();
+//            ResponseEntity<R> entity = restTemplate.exchange(url, HttpMethod.GET, http, R.class, "");
+//            R body = entity.getBody();
+//            if (body.getCode() == 1) {
+//                String jsonStr = JSONUtil.toJsonStr(body.getData());
+//                holidayVO = JSONUtil.toBean(jsonStr, HolidayVO.class);
+//                holidayCache.put(CaffeineConstants.HOLIDAY_KEY, holidayVO);
+//            }
+//            throw new RuntimeException("api错误");
+//        }
+//        return R.success(holidayVO);
+//    }
+
+
 }

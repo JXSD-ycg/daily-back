@@ -5,22 +5,33 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.ycg.daily.common.R;
 import com.ycg.daily.constants.CaffeineConstants;
 import com.ycg.daily.mapper.DailyInfoMapper;
 import com.ycg.daily.pojo.DailyInfo;
 import com.ycg.daily.pojo.Picture;
 import com.ycg.daily.pojo.dto.ImageDto;
+import com.ycg.daily.pojo.vo.HolidayVO;
 import com.ycg.daily.service.AsyncService;
 
 import com.ycg.daily.service.DailyInfoService;
 import com.ycg.daily.service.PictureService;
+import com.ycg.daily.util.HttpEntityUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -59,7 +70,6 @@ public class AsyncServiceImpl implements AsyncService {
         //2. 转换为字符串 存放到缓存
         dailyCache.invalidate(CaffeineConstants.DAILY_INFO_KEY);
         dailyCache.put(CaffeineConstants.DAILY_INFO_KEY,infoPage);
-
     }
 
 

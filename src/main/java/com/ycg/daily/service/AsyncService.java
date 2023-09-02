@@ -1,7 +1,9 @@
 package com.ycg.daily.service;
 
-public interface  AsyncService {
+
+public interface AsyncService {
 
     void dailyInfoAsync();
+
 
 }

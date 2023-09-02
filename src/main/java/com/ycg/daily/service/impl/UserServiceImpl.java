@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.ycg.daily.common.R;
 import com.ycg.daily.common.UserContext;
-import com.ycg.daily.constants.VerificationConstants;
+import com.ycg.daily.constants.CaffeineConstants;
 import com.ycg.daily.pojo.User;
 import com.ycg.daily.pojo.dto.LoginDto;
 import com.ycg.daily.pojo.dto.RegisterDto;
@@ -22,19 +22,13 @@ import com.ycg.daily.util.MyJwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
-import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.springframework.stereotype.Service;
 
 
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author lenovo
@@ -61,7 +55,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return R.error("验证码为空");
         } else {
             // 从缓存中根据邮箱取出验证码
-            String mailCode = codeCache.get(VerificationConstants.MAIL + registerDto.getEmail(), key -> {
+            String mailCode = codeCache.get(CaffeineConstants.MAIL + registerDto.getEmail(), key -> {
                 log.error("mail验证码不存在");
                 return null;
             });
@@ -151,7 +145,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         long codeKey  = loginDto.getCodeId();
 
         // 判断验证码是否正确
-        String picCode = codeCache.get(VerificationConstants.PIC + codeKey, key -> {
+        String picCode = codeCache.get(CaffeineConstants.PIC + codeKey, key -> {
             log.error("验证码为空");
             return null;
         });
@@ -176,7 +170,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
 
         // 登录成功  删除验证码缓存
-        codeCache.invalidate(VerificationConstants.PIC + loginDto.getEmail());
+        codeCache.invalidate(CaffeineConstants.PIC + loginDto.getEmail());
         // 正确则返回token
         String token = MyJwtUtil.createToken(UserContext.getCurrentId());
 

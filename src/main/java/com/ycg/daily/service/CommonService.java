@@ -1,14 +1,12 @@
 package com.ycg.daily.service;
 
 import com.ycg.daily.common.R;
-import com.ycg.daily.pojo.vo.CodeMessageVo;
-import com.ycg.daily.pojo.vo.ImageVO;
-import com.ycg.daily.pojo.vo.Sentence;
+import com.ycg.daily.pojo.vo.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface CommonService {
     /**
@@ -27,7 +25,7 @@ public interface CommonService {
      * 每日一句
      * @return
      */
-    R<List<Sentence>> sentence();
+    R<List<SentenceVO>> sentence();
 
     /**
      * 获取本站总体数据  用户数 日记数量等
@@ -52,4 +50,17 @@ public interface CommonService {
      * @return
      */
     R<String> deleteImage(Long id, String imageUrl, Integer type);
+
+    /**
+     * 获取财经新闻
+     * @return
+     */
+    R<List<NewVO>> finance();
+
+
+//    /**
+//     * 获取日期信息, 节假日, 万年历, 节气等
+//     * @return
+//     */R<HolidayVO> holiday();
+
 }
