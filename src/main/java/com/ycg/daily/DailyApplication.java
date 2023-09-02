@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @MapperScan("com.ycg.daily.mapper")
-@EnableAsync // 开启异步通知
+// @EnableAsync // 开启异步通知
 public class DailyApplication {
 
     public static void main(String[] args) {

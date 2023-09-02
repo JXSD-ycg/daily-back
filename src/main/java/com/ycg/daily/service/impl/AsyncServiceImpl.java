@@ -3,6 +3,7 @@ package com.ycg.daily.service.impl;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.ycg.daily.common.R;
@@ -31,6 +32,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -51,10 +53,9 @@ public class AsyncServiceImpl implements AsyncService {
     private PictureService pictureService;
 
     /**
-     * 缓存同步数据库日记信息, 每次新增日记的时候 和项目重启的时候调用
+     * 缓存同步数据库日记信息, 每次新增日记的时候 和项目重启的时候调用 不能异步调用 有延迟
      */
     @Override
-    @Async
     @PostConstruct
     public void dailyInfoAsync() {
         //1. 查询数据库最新的 7条日记
@@ -72,5 +73,17 @@ public class AsyncServiceImpl implements AsyncService {
         dailyCache.put(CaffeineConstants.DAILY_INFO_KEY,infoPage);
     }
 
+    /**
+     * 更新 日记观看数
+     * @param one
+     */
+    public void updateViews(DailyInfo one) {
+        //将日记的view加1
+        LambdaUpdateWrapper<DailyInfo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(DailyInfo::getId, one.getId())
+                .set(DailyInfo::getViews, one.getViews() + 1);
+        dailyInfoMapper.update(one,updateWrapper);
+        dailyInfoAsync();
+    }
 
 }

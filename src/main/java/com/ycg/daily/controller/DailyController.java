@@ -102,8 +102,8 @@ public class DailyController {
         if (ObjectUtil.isEmpty(dailyInfo)) {
             return R.error("修改日记为空");
         }
-        dailyInfoService.updateById(dailyInfo);
-        return R.success("修改日记成功");
+        ;
+        return dailyInfoService.updateDailyById(dailyInfo);
     }
 
 }

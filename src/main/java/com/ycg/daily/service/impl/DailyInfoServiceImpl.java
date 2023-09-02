@@ -5,6 +5,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -122,9 +123,27 @@ public class DailyInfoServiceImpl extends ServiceImpl<DailyInfoMapper, DailyInfo
         LambdaQueryWrapper<DailyInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DailyInfo::getId, id);
         DailyInfo one = getOne(wrapper);
+        // 异步 将日记观看数量 加 1
+        asyncService.updateViews(one);
+
         // 修改一下 返回的 图片格式
         pictureService.changeImageForm(Collections.singletonList(one));
+
         return R.success(one);
+    }
+
+    /**
+     * 更新一篇日记
+     *
+     * @param dailyInfo
+     * @return
+     */
+    @Override
+    public R<String> updateDailyById(DailyInfo dailyInfo) {
+        updateById(dailyInfo);
+        // 同步数据
+        asyncService.dailyInfoAsync();
+        return R.success("修改成功");
     }
 
 

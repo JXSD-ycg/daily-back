@@ -47,4 +47,11 @@ public interface DailyInfoService extends IService<DailyInfo> {
      * @return
      */
     R<DailyInfo> queryOne(Integer id);
+
+    /**
+     * 更新一篇日记
+     * @param dailyInfo
+     * @return
+     */
+    R<String> updateDailyById(DailyInfo dailyInfo);
 }
