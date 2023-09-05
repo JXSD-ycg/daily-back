@@ -13,7 +13,7 @@ import java.util.Map;
 @Data
 public class R<T> implements Serializable {
 
-    private Integer code; //编码：1成功，0和其它数字为失败
+    private Integer code; //编码：1成功，0为失败 2为警告
 
     private String msg; //错误信息
 
@@ -34,6 +34,12 @@ public class R<T> implements Serializable {
         return r;
     }
 
+    public static <T> R<T> warning(String msg) {
+        R r = new R();
+        r.msg = msg;
+        r.code = 2;
+        return r;
+    }
 
 
 

@@ -51,4 +51,11 @@ public interface UserService extends IService<User> {
      * @return
      */
     UserVO getUserById(String id);
+
+    /**
+     * 用户修改密码接口
+     * @param registerDto
+     * @return
+     */
+    R<String> updatePass(RegisterDto registerDto);
 }

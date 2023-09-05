@@ -22,7 +22,7 @@ public class DailyController {
     private DailyInfoService dailyInfoService;
 
     /**
-     * 增加一篇日记 todo 还未进行token拦截, 直接放行了
+     * 增加一篇日记
      * @param dailyInfo
      * @return
      */

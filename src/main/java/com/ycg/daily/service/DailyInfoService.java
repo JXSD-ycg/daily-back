@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 public interface DailyInfoService extends IService<DailyInfo> {
     /**
-     * 增加一片日记 todo 还未进行token拦截, 直接放行了
+     * 增加一片日记
      *
      * @param dailyInfo
      * @return

@@ -62,9 +62,10 @@ public class TokenFilter extends OncePerRequestFilter {
 
         // 定义拦截的的接口
         String[] publicUrls = new String[]{
-//                "/daily/add",
-//                "/user/deleteUser/**",
-//                "/daily/edit",
+                "/daily/add",
+                "/user/deleteUser/**",
+                "/upload/**",
+                "/daily/edit",
                 "/common/upload/**"
         };
 

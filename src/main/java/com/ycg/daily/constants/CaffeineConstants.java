@@ -18,9 +18,15 @@ public class CaffeineConstants {
     public static final String PIC = "pic_";
 
     /**
-     * 邮箱验证码缓存
+     * 注册邮箱验证码缓存
      */
-    public static final String MAIL = "mail_";
+    public static final String REGISTER_MAIL = "login_mail_";
+
+    /**
+     * 修改密码的邮箱验证码
+     */
+    public static final String UPDATE_MAIL = "update_mail_";
+
 
     /**
      * 新闻缓存

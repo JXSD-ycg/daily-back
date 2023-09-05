@@ -21,6 +21,7 @@ import com.ycg.daily.service.DailyInfoService;
 import com.ycg.daily.service.PictureService;
 import com.ycg.daily.service.UserService;
 import com.ycg.daily.util.HttpEntityUtils;
+import com.ycg.daily.util.MailUtils;
 import com.ycg.daily.util.NewUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -48,26 +49,59 @@ public class CommonServiceImpl implements CommonService {
     @Resource
     private Cache<String, String> codeCache;
 
+
     /**
      * 发送邮箱服务
      *
      * @param email
+     * @param type 邮箱类型  0:注册账号邮箱  1:修改密码邮箱
      */
     @Override
-    public R<String> sentMail(String email) {
+    public R<String> sentMail(String email, Short type) {
 
         // 参数校验
         if (StrUtil.isEmpty(email)) {
             return R.error("邮箱为空");
         }
-        // 发送邮箱 生产4位的随机验证码
-        int code = RandomUtil.randomInt(1000, 9999);
-        log.info("邮箱验证码:" + code);
+        if (ObjectUtil.isNull(type) || (type != 1 && type != 0)) {
+            return R.error("邮箱类型错误");
+        }
+        int code = getCodeByType(email,type);
 
-        // 存入缓存中
-        codeCache.put(CaffeineConstants.MAIL + email, String.valueOf(code));
+        if (type == 0) {
+            // 查询数据库 如果邮箱已经存在, 则不用继续注册
+            LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(User::getEmail, email);
+            User one = userService.getOne(wrapper);
+            if (ObjectUtil.isNotNull(one)) {
+                return R.warning("用户已经注册");
+            }
+            // 存入缓存中
+            codeCache.put(CaffeineConstants.REGISTER_MAIL + email, String.valueOf(code));
+        }
+        // type != 0 说明是来修改密码的
+        codeCache.put(CaffeineConstants.UPDATE_MAIL + email, String.valueOf(code));
 
         return R.success("发送邮箱成功");
+    }
+
+    /**
+     * 根据类型缓存对应的邮箱类型
+     * @param email
+     * @param type 邮箱类型  0:注册账号邮箱  1:修改密码邮箱
+     * @return
+     */
+    private int getCodeByType(String email, Short type) {
+        // 发送邮箱 生成4位的随机验证码
+        int code = RandomUtil.randomInt(1000, 9999);
+        log.info("邮箱验证码:" + code);
+        if (type == 0) {
+            MailUtils.sendRegisterMsg(email, code);
+        } else if (type == 1) {
+            MailUtils.sendUpdateMsg(email,code);
+        }
+
+        return code;
     }
 
     /**

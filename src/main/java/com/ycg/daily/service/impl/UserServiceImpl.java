@@ -43,58 +43,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Resource
     private Cache<String, String> codeCache;
 
+    /**
+     *
+     * 用户修改密码接口
+     * @param registerDto
+     * @return
+    */
     @Override
-    public R<String> register(RegisterDto registerDto) {
+    public R<String> updatePass(RegisterDto registerDto) {
         // 参数校验 验证码是否正确
-        if (ObjectUtil.isEmpty(registerDto)) {
-            log.error("register 为null");
-            return R.error("参数错误");
-        }
-        // 对比邮件验证码
-        if (ObjectUtil.isEmpty(registerDto.getMailCode())) {
-            return R.error("验证码为空");
-        } else {
-            // 从缓存中根据邮箱取出验证码
-            String mailCode = codeCache.get(CaffeineConstants.MAIL + registerDto.getEmail(), key -> {
-                log.error("mail验证码不存在");
-                return null;
-            });
-            if (ObjectUtil.isNull(mailCode)) {
-                return R.error("mail验证码不存在");
-            } else if (!Objects.equals(registerDto.getMailCode(), mailCode)) {
-                log.error("mail验证码错误:缓存验证码={}, 输入验证码={}", mailCode, registerDto.getMailCode());
-                return R.error("mail验证码错误");
-            }
-        }
-
-        if (StrUtil.isEmpty(registerDto.getUsername())) {
-            log.error("用户名为空");
-            return R.error("用户名为空");
-        }
-        if (StrUtil.isEmpty(registerDto.getEmail())) {
-            log.error("邮箱为空");
-            return R.error("邮箱为空");
-        }
-        if (StrUtil.isEmpty(registerDto.getPassword())) {
-            log.error("密码为空");
-            return R.error("密码为空");
+        String errorMsg = checkRegisterDto(registerDto, 1);
+        if (StrUtil.isNotEmpty(errorMsg)) {
+            return R.error(errorMsg);
         }
 
         // 验证通过 生成盐信息 并加密密码
-        String salt = IdUtil.simpleUUID().substring(2, 10);
-        String password = MD5.create().digestHex(registerDto.getPassword() + salt);
-        User user = new User();
-        user.setEmail(registerDto.getEmail());
-        user.setUsername(registerDto.getUsername());
-        user.setPassword(password);
+        String salt = getSalt();
+        String password = getMd5PassWithSalt(registerDto, salt);
+        // 查询数据库原来的账号
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getEmail, registerDto.getEmail());
+        User user = getOne(wrapper);
+        if (ObjectUtil.isNull(user)) {
+            return R.error("账号不存在");
+        }
         user.setSalt(salt);
-        save(user);
-
+        user.setPassword(password);
+        updateById(user);
         //  清理邮箱验证码的缓存
-        codeCache.invalidate(registerDto.getEmail());
+        codeCache.invalidate(CaffeineConstants.UPDATE_MAIL+registerDto.getEmail());
 
         // 登录成功, 生成token返回
         return R.success("注册成功");
+    }
+
+    /**
+     * 根据原始密码和盐值来加密密码
+     * @param registerDto
+     * @param salt
+     * @return
+     */
+    private String getMd5PassWithSalt(RegisterDto registerDto, String salt) {
+        return MD5.create().digestHex(registerDto.getPassword() + salt);
     }
 
     /**
@@ -214,6 +204,96 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         return userVO;
     }
+
+    /**
+     * 用户修改密码接口
+     *
+     * @param registerDto
+     * @return
+     */
+    @Override
+    public R<String> register(RegisterDto registerDto) {
+        // 参数校验 验证码是否正确
+        String errorMsg = checkRegisterDto(registerDto, 0);
+        if (StrUtil.isNotEmpty(errorMsg)) {
+            return R.error(errorMsg);
+        }
+        // 验证通过 生成盐信息 并加密密码
+        String salt = getSalt();
+        String password = getMd5PassWithSalt(registerDto, salt);
+
+        User user = new User();
+        user.setEmail(registerDto.getEmail());
+        user.setUsername(registerDto.getUsername());
+        user.setPassword(password);
+        user.setSalt(salt);
+        save(user);
+
+        //  清理邮箱验证码的缓存
+        codeCache.invalidate(CaffeineConstants.REGISTER_MAIL+registerDto.getEmail());
+
+        // 登录成功, 生成token返回
+        return R.success("注册成功");
+    }
+
+
+
+    private String getSalt() {
+        return IdUtil.simpleUUID().substring(2, 10);
+    }
+
+    /**
+     * registerDto参数校验
+     * @param registerDto
+     * @param type     0:注册参数校验    1:修改密码参数校验
+     * @return
+     */
+    private String checkRegisterDto(RegisterDto registerDto, Integer type) {
+        String errorMsg = "";
+        // 参数校验 验证码是否正确
+        if (ObjectUtil.isEmpty(registerDto)) {
+            log.error("register 为null");
+            errorMsg = "参数错误";
+            return errorMsg;
+        }
+        // 对比邮件验证码
+        if (ObjectUtil.isEmpty(registerDto.getMailCode())) {
+            errorMsg = "验证码为空";
+            return errorMsg;
+        } else {
+            // 从缓存中根据邮箱取出验证码
+            String mailCode = codeCache.get(CaffeineConstants.UPDATE_MAIL + registerDto.getEmail(), key -> {
+                log.error("mail验证码不存在");
+                return null;
+            });
+            if (ObjectUtil.isNull(mailCode)) {
+                errorMsg = "mail验证码不存在";
+                return errorMsg;
+            } else if (!Objects.equals(registerDto.getMailCode(), mailCode)) {
+                log.error("mail验证码错误:缓存验证码={}, 输入验证码={}", mailCode, registerDto.getMailCode());
+                errorMsg = "mail验证码错误";
+                return errorMsg;
+            }
+        }
+
+        if (StrUtil.isEmpty(registerDto.getUsername()) && type == 0) {
+            log.error("用户名为空");
+            errorMsg = "用户名为空";
+            return errorMsg;
+        }
+        if (StrUtil.isEmpty(registerDto.getEmail())) {
+            log.error("邮箱为空");
+            errorMsg = "邮箱为空";
+            return errorMsg;
+        }
+        if (StrUtil.isEmpty(registerDto.getPassword())) {
+            log.error("密码为空");
+            errorMsg = "密码为空";
+            return errorMsg;
+        }
+        return errorMsg;
+    }
+
 }
 
 

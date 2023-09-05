@@ -37,6 +37,16 @@ public class UserController {
     }
 
     /**
+     * 用户修改密码接口
+     * @param registerDto 邮箱, 用户名, 密码 ,验证码
+     * @return
+     */
+    @PutMapping("/update")
+    public R<String> updatePass(@RequestBody RegisterDto registerDto) {
+        return userService.updatePass(registerDto);
+    }
+
+    /**
      * 用户登录
      * @param loginDto 邮箱 密码 验证码
      * @return

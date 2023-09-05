@@ -12,7 +12,7 @@ public interface CommonService {
     /**
      * 发送邮箱服务
      */
-    R<String> sentMail(String email);
+    R<String> sentMail(String email, Short type);
 
     /**
      * 用户登录实现图形验证码功能

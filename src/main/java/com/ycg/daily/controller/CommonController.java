@@ -29,12 +29,13 @@ public class CommonController {
 
     /**
      * 用户注册实现邮箱验证码功能
-     *
+     *  @param type 邮箱类型  0:注册账号邮箱  1:修改密码邮箱
      * @return
      */
-    @GetMapping("/sentMail/{mail}")
-    public R<String> sentMail(@PathVariable("mail") String email) {
-        return commonService.sentMail(email);
+    @GetMapping("/sentMail/{mail}/{type}")
+    public R<String> sentMail(@PathVariable("mail") String email,
+                              @PathVariable("type")  Short type) {
+        return commonService.sentMail(email, type);
     }
 
     /**
