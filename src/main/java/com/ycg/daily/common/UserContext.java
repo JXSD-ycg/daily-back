@@ -24,4 +24,11 @@ public class UserContext {
         threadLocal.set(id);
     }
 
+    /**
+     * 删除threadLocal
+     */
+    public static void clean() {
+        threadLocal.remove();
+    }
+
 }

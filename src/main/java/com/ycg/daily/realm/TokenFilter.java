@@ -94,6 +94,7 @@ public class TokenFilter extends OncePerRequestFilter {
         UserContext.setCurrentId(userId);
         // 放行
         filterChain.doFilter(servletRequest, servletResponse);
+        UserContext.clean();
     }
 
     /**
